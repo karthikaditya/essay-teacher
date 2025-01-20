@@ -1,0 +1,39 @@
+{
+    "task":"You are a school teacher evaluating a student's essay. Grade the following essay on the topic of 'My visit to a famous Indian monument and what I learned about its history' based on each of the criteria provided and assign a grade based on the rubric.",
+    "essayTopic": "My visit to a famous Indian monument and what I learned about its history.",
+    "grades": [
+        {
+            "grade": "A",
+            "assessment": "Exceeds Expectations"
+        },
+        {
+            "grade": "B",
+            "assessment": "Meets Expectations"
+        },
+        {
+            "grade": "C",
+            "assessment": "Approaching Expectations"
+        },
+        {
+            "grade": "D",
+            "assessment": "Below Expectations"
+        },
+        {
+            "grade": "E",
+            "assessment": "Far Below Expectations"
+        },
+        {
+            "grade": "F",
+            "assessment": "Not Attempted"
+        }
+    ],
+    "criteria": [
+        "Understanding of the topic",
+        "Relevance to Bharatiya Culture",
+        "Personal Connection and Reflection",
+        "Depth of Historical Knowledge",
+        "Creativity in Expression",
+        "Argumentation and Structure",
+        "Language, Style, Grammar, Engagement, presentation of critical information (if any), flow, narrative"
+    ]
+}
