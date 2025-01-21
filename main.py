@@ -1,12 +1,45 @@
 import os
 import csv
 import json
+import argparse
+import sys
 from pypdf import PdfReader
 from prompts import execute_prompt, validate_text_prompt
 from datetime import datetime
 
+# accept the folder path as an input from the console
+# folder_path = input("Please enter the folder path containing the PDF files: ")
+
+# json_file_path = input("Please enter the file path to the json prompts:")
+
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Process PDF files and generate a AI summary.")
+parser.add_argument("folder_path", type=str, help="The folder path containing the PDF files.")
+parser.add_argument("json_file_path", type=str, help="The file path to the JSON prompts.")
+
+# Parse arguments
+args = parser.parse_args()
+folder_path = args.folder_path
+json_file_path = args.json_file_path
+
+# Check if folder_path is a valid directory
+if not os.path.isdir(folder_path):
+    print(f"Error: {folder_path} is not a valid directory.")
+    sys.exit(1)
+
+# Check if json_file_path is a valid file
+if not os.path.isfile(json_file_path):
+    print(f"Error: {json_file_path} is not a valid file.")
+    sys.exit(1)
+
+# Check if OPENAI_API_KEY is set in environment variables
+if 'OPENAI_API_KEY' not in os.environ:
+    print("Error: OPENAI_API_KEY environment variable is not set.")
+    sys.exit(1)
+else:
+    print("OPENAI_API_KEY environment variable is set.")
+    
 # read data from the JSON file
-json_file_path = "query.json"
 prompt = ""
 query_data = {}
 with open(json_file_path, 'r') as json_file:
@@ -26,9 +59,6 @@ with open(json_file_path, 'r') as json_file:
         # and assign a number score between minimum of {min_points} and maximum of {max_points})\n"
     
     # prompt = f"Topic: {topic}\nAssessments: {completed_assessments}\n"
-    
-# accept the folder path as an input from the console
-folder_path = input("Please enter the folder path containing the PDF files: ")
 
 # generate a unique CSV file name with date and time
 output_csv = f"AIEssayReview_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
@@ -65,15 +95,18 @@ for filename in os.listdir(folder_path):
         # count the number of words in the combined text
         word_count = len(combined_text.split())
         # print(f"Word count for {filename}: {word_count}")
+        # print(f"Text extracted: {combined_text}")
         
         # execute the AI promt
-        # prompt = f"You are a school teacher evaluating a student's essay. Evaluate the follow essay written by a student on the topic '{topic}'. Provide your answer in bullet form. For each of the below assessment criteria, provide a grade between A to F \nNo explanation needed."
-        
-        response = execute_prompt(filename, prompt, combined_text)
-        # summary = validate_text_prompt(combined_text)
-        # print(f"Summary of {filename}:\n{response}\n")
-        
-        print("AI response obtained.")
+        if word_count == 0:
+            print("Error: file contains no text.")
+            response = "No text found in the PDF file."
+        else:
+            response = execute_prompt(filename, prompt, combined_text)
+            # summary = validate_text_prompt(combined_text)
+            # print(f"Summary of {filename}:\n{response}\n") 
+            print("AI response obtained.")
+            
         # add the file name, word count, and page count to the list
         essay_response.append([filename, word_count, num_pages, response])
 
