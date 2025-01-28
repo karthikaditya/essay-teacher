@@ -6,6 +6,7 @@ from pydantic import BaseModel, ValidationError
 import logging
 
 class AsssessmentGrade(BaseModel):
+    criteria: str
     explanation: str
     grade: str
     
@@ -73,7 +74,7 @@ def execute_prompt(filename, prompt, text):
             logging.info(f"Processing file: {filename}")
             
             response = openai.ChatCompletion.create(
-                model="gpt-4o-mini",
+                model="gpt-4o-2024-08-06",
                 messages=[
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": text},
@@ -82,48 +83,32 @@ def execute_prompt(filename, prompt, text):
                 n=1,
                 stop=None,
                 temperature=0.2,
-                # response_format={
-                #     "type": "json_schema",
-                #     "json_schema": {
-                #         "name": "complete_assessment",
-                #         "strict": True,
-                #         "schema": {
-                #             "type": "object",
-                #             "properties": {
-                #                 "grades": {
-                #                     "type": "array",
-                #                     "items": {
-                #                         "type": "object",
-                #                         "properties": {
-                #                             "explanation": {"type": "string"},
-                #                             "grade": {"type": "string"},
-                #                         },
-                #                         "required": ["explanation", "grade"],
-                #                         "additionalProperties": False,
-                #                     },
-                #                 },
-                #             },
-                #             "required": ["grades"],
-                #             "additionalProperties": False,
-                #         },
-                #     },
-                # },
-                # strict=True
+                # response_format=CompleteAssessment,
+                response_format={
+                    'type': 'json_schema',
+                    'json_schema': 
+                        {
+                            "name":"whocares", 
+                            "schema": CompleteAssessment.model_json_schema()
+                        }
+                    },
             )
-            response_text = response.choices[0].message['content'].strip()
+            #response_text = response.choices[0].message['content'].strip()
             
-            # try:
-            #     # Parse and validate the response content
-            #     solution = CompleteAssessment.model_validate(response.choices[0].message.content)
-            #     print(solution)
-            # except ValidationError as e:
-            #     # Handle validation errors
-            #     print(e.json())
+            response_obj = {}
+            try:
+                # Parse and validate the response content
+                response_obj = CompleteAssessment.model_validate(response.choices[0].message.content)
+                print("Response parsed and validated successfully.")
+            except ValidationError as e:
+                # Handle validation errors
+                print("Failed to parse response content.")
+                # response_obj = e.json()
                 
-                 # Log the prompt and response
-            logging.info(f"Response: {response}")
+            # Log the prompt and response
+            # logging.info(f"Response: {response}")
             
-            return response_text
+            return response_obj
         except openai.error.RateLimitError as e:
             logging.error(f"Rate limit exceeded. Retrying in {retry_delay} seconds...")
             print(f"Rate limit exceeded. Retrying in {retry_delay} seconds...")

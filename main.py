@@ -103,6 +103,10 @@ for filename in os.listdir(folder_path):
             response = "No text found in the PDF file."
         else:
             response = execute_prompt(filename, prompt, combined_text)
+            
+            # for res in response.grades:
+            #     print(f"Grade: {res.criteria} - {res.grade}")
+                
             # summary = validate_text_prompt(combined_text)
             # print(f"Summary of {filename}:\n{response}\n") 
             print("AI response obtained.")
